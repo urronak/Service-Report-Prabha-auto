@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b5121b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json?v=final16">
+<link rel="icon" type="image/png" sizes="192x192" href="prabha-auto-icon-192.png"><link rel="apple-touch-icon" href="prabha-auto-icon-192.png">
+<link rel="stylesheet" href="style.css?v=final16">
+<title>PRABHA AUTO • Business Manager</title>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="login-card">
+    <img class="login-logo" src="prabha-auto-logo.png" alt="PRABHA AUTO">
+    <div class="eyebrow">PRABHA AUTO</div>
+    <h1>Business Manager</h1>
+    <p class="login-sub">Sales • Purchase • Stock • Reports</p>
+    <form id="loginForm">
+      <input id="loginId" placeholder="Login ID" autocomplete="username">
+      <input id="loginPw" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="btn primary wide">Login</button>
+    </form>
+    <button id="forgot" class="link">Forgot Password?</button>
+    <p id="loginMsg"></p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+<header class="app-header">
+  <div class="brand">
+    <img src="prabha-auto-logo.png" alt="PRABHA AUTO">
+    <div><b>PRABHA AUTO</b><small>Authorised Dealer • EICHER TRACTORS</small></div>
+  </div>
+  <div class="header-right">
+    <span class="save-status" id="sync">Local</span>
+    <div class="header-manager"><span>Service Manager</span><b>Chanchal Kumar</b></div>
+    <button id="logout" class="btn logout-btn">Logout</button>
+  </div>
+</header>
+
+<aside>
+  <div class="manager">
+    <img src="prabha-auto-logo.png" class="side-logo" alt="PRABHA AUTO">
+    <span>Service Manager</span><b>Chanchal Kumar</b><small>9693124739</small>
+  </div>
+  <nav>
+    <button data-page="dashboard" class="active">🏠 <span>Dashboard</span></button>
+    <button data-page="sale">🚜 <span>Sale</span></button>
+    <button data-page="purchase">🧾 <span>Purchase</span></button>
+    <button data-page="stock">📦 <span>Stock</span></button>
+    <button data-page="orders">🛒 <span>Order List</span><i id="badge">0</i></button>
+    <button data-page="suppliers">🏭 <span>Suppliers</span></button>
+    <button data-page="reports">📊 <span>Reports</span></button>
+    <button data-page="settings">⚙️ <span>Settings</span></button>
+  </nav>
+</aside>
+
+<main>
+<section id="dashboard" class="page active">
+  <div class="head">
+    <div><small>BUSINESS OVERVIEW</small><h1>Dashboard</h1></div>
+    <div class="filters">
+      <select id="dashRange"><option value="today">Today</option><option value="month">This Month</option><option value="year">This Year</option><option value="custom">Custom Date</option></select>
+      <input id="dashFrom" type="date" class="hidden"><input id="dashTo" type="date" class="hidden">
+      <button id="dashApply" class="btn">Apply</button><button id="dashRefresh" class="btn primary">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="kpis">
+    <div class="k blue"><span>TODAY'S SALE</span><strong id="dSale">₹0</strong></div>
+    <div class="k green"><span>CASH RECEIVED</span><strong id="dCash">₹0</strong></div>
+    <div class="k purple"><span>BANK RECEIVED</span><strong id="dBank">₹0</strong></div>
+    <div class="k orange"><span>CUSTOMER DUE</span><strong id="dDue">₹0</strong></div>
+    <div class="k teal"><span>GANPATI CREDIT / ADVANCE</span><strong id="dGanpati">₹0</strong></div>
+    <div id="profitCard" class="k cyan"><span>TOTAL SERVICE</span><strong id="dProfit">0</strong></div>
+    <div class="k cyan"><span>THIS MONTH PURCHASE</span><strong id="dPurchase">₹0</strong></div>
+    <div class="k amber"><span>LOW STOCK</span><strong id="dLow">0</strong></div>
+  </div>
+  <div class="panel quick-panel">
+    <div class="panel-title"><h2>Quick Management</h2><span>Daily shortcuts</span></div>
+    <div class="quick-grid">
+      <button class="quick-btn" data-page="stock">📦 <b>Stock</b><small>Manage stock</small></button>
+      <button class="quick-btn" id="quickPayment">💰 <b>Payment</b><small>Add supplier payment</small></button>
+      <button class="quick-btn" data-page="purchase">🧾 <b>Purchase</b><small>Add / history</small></button>
+      <button class="quick-btn" data-page="sale">🚜 <b>Sale</b><small>New sale</small></button>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="panel"><div class="panel-title"><h2>Mechanic-wise Revenue</h2><span>Service count + revenue</span></div><div id="mechanics"></div></div>
+    <div class="panel"><div class="panel-title"><h2>Stock Status</h2></div><div id="stockStatus"></div></div>
+    <div class="panel"><div class="panel-title"><h2>Recent Transactions</h2></div><div id="recent"></div></div>
+  </div>
+</section>
+
+<section id="sale" class="page">
+  <div class="head"><div><small>SALES MANAGEMENT</small><h1>New Sale</h1></div><span class="page-pill">Invoice + Stock</span></div>
+  <div class="panel sale-panel">
+    <div class="section-title"><h2>Sale Details</h2><span>All fields save with the invoice</span></div>
+    <div class="grid2">
+      <label>Customer Name<input id="saleCustomer" placeholder="Customer name"></label>
+      <label>Tractor Model<input id="saleTractor" placeholder="Model / tractor no."></label>
+      <label>Machine Name<select id="saleMachine"></select></label>
+      <label>Date<input id="saleDate" type="date"></label>
+    </div>
+    <div class="rowhead"><h2>Parts / Items</h2><button id="addItem" class="btn primary">+ Add Item</button></div>
+    <div id="items"></div>
+    <div class="totals-box">
+      <label>Total Amount<input id="saleTotal" readonly></label>
+      <label>Less / Discount<input id="saleLess" type="number" value="0" min="0"></label>
+      <label class="final-label">Final Amount<input id="saleFinal" readonly></label>
+    </div>
+    <div class="grid2 payment-row">
+      <label>Payment Mode<select id="saleMode"><option>Cash</option><option>Bank</option><option>Credit</option></select></label>
+      <label id="utrBox" class="hidden">UTR No.<input id="saleUtr" placeholder="Bank UTR number"></label>
+    </div>
+    <div class="actions">
+      <button id="saveSale" class="btn primary">✓ Save Sale</button>
+      <button id="shareSale" class="btn whatsapp">WhatsApp Share</button>
+      <button id="lastInvoice" class="btn">View Last Invoice</button>
+    </div>
+    <p id="saleMsg" class="muted">New sale ready</p>
+  </div>
+  <div class="panel"><div class="section-title"><h2>Sale History</h2><span>Saved invoices</span></div><input id="saleSearch" class="search" placeholder="Search customer / invoice / part code"><div id="saleHistory"></div></div>
+</section>
+
+<section id="purchase" class="page">
+  <div class="head"><div><small>PURCHASE MANAGEMENT</small><h1>Purchase</h1></div><button id="addPurchase" class="btn primary">+ Add Purchase</button></div>
+  <div class="panel"><div class="section-title"><h2>Recent Purchases</h2><span>Latest 5</span></div><div id="recentPurchases"></div></div>
+  <div class="panel"><div class="section-title"><h2>Purchase History</h2><span>Search and open invoice/photo</span></div>
+    <div class="toolbar"><input id="purchaseSearch" class="search" placeholder="Search Invoice / Supplier / Part Code"><input id="purchaseFrom" type="date"><input id="purchaseTo" type="date"></div>
+    <div id="purchaseHistory"></div>
+  </div>
+</section>
+
+<section id="stock" class="page">
+  <div class="head"><div><small>INVENTORY</small><h1>Current Stock</h1><small>PDF = lookup only • Current Stock Excel = actual stock</small></div>
+    <div class="actions"><button id="stockCsv" class="btn primary">Export Excel</button><button id="stockPrint" class="btn">Export PDF / Print</button></div>
+  </div>
+  <div class="stats">
+    <div><b id="sp">0</b><small>Master Parts</small></div><div><b id="sa">0</b><small>Available</small></div><div><b id="sz">0</b><small>Zero</small></div><div><b id="sl">0</b><small>Low</small></div><div><b id="sq">0</b><small>Total Qty</small></div>
+  </div>
+  <div class="panel">
+    <div class="toolbar"><input id="stockSearch" class="search" placeholder="Search Part Code / Name"><select id="stockFilter"><option>All</option><option>Available</option><option>Low</option><option>Zero</option></select></div>
+    <div class="stock-actions"><button id="addPart" class="btn primary">+ Add Part</button><button id="editSelectedPart" class="btn">✏️ Edit Selected</button><button id="deleteSelectedPart" class="btn danger">🗑️ Delete Selected</button></div><div id="stockTable"></div>
+  </div>
+</section>
+
+<section id="orders" class="page">
+  <div class="head"><div><small>REPLENISHMENT</small><h1>Order List</h1><small>Only actual Current Stock low / zero parts</small></div><div class="actions"><button id="orderCsv" class="btn primary">Excel</button><button id="orderPrint" class="btn">PDF</button></div></div>
+  <div class="panel"><div class="toolbar"><select id="orderFilter"><option>Low + Zero</option><option>Zero</option><option>Low</option></select><label>Low Limit<input id="lowLimit" type="number" min="0" value="2"></label></div><div id="orderTable"></div><div class="order-total"><span>NDP <b id="ordNdp">₹0</b></span><span>GST <b id="ordGst">₹0</b></span><strong>GANPATI PAYABLE <span id="ordTotal">₹0</span></strong></div></div>
+</section>
+
+<section id="suppliers" class="page">
+  <div class="head"><div><small>SUPPLIER LEDGER</small><h1>Suppliers</h1><small>Purchase, payment and outstanding</small></div><button id="addSupplier" class="btn primary">+ New Supplier</button></div>
+  <div class="panel"><div id="supplierCards"></div></div>
+  <div class="panel"><div class="section-title"><h2>Supplier Payment History</h2><button id="addPayment" class="btn primary">+ Supplier Payment</button></div><div id="paymentHistory"></div></div>
+</section>
+
+<section id="reports" class="page">
+  <div class="head"><div><small>BUSINESS REPORTING</small><h1>Reports</h1></div></div>
+  <div class="panel">
+    <div class="reportbar"><select id="reportType"><option>Complete</option><option>Sales</option><option>Purchase</option><option>Payments</option><option>Stock</option><option>Order</option><option>Ganpati</option></select><button id="rAllDates" class="btn">All Dates</button><input id="rFrom" type="date"><input id="rTo" type="date"><button id="makeReport" class="btn primary">Generate</button><button id="reportCsv" class="btn">Excel</button><button id="reportPrint" class="btn">PDF / Print</button></div>
+    <div id="report"></div>
+  </div>
+</section>
+
+<section id="settings" class="page">
+  <div class="head"><div><small>CONFIGURATION</small><h1>Settings</h1></div></div>
+  <div class="cols2">
+    <div class="panel form"><h2>Business Details</h2><label>Business Name<input id="business"></label><label>Service Manager<input id="manager"></label><label>Mobile<input id="mobile"></label><label>Recovery Email<input id="email"></label><label>Low Stock Limit<input id="settingLow" type="number" min="0"></label><button id="saveSettings" class="btn primary">Save Settings</button></div>
+    <div class="panel form"><h2>Machine Names</h2><label>1<input id="m1"></label><label>2<input id="m2"></label><label>3<input id="m3"></label><button id="saveMachines" class="btn">Save Machines</button></div>
+    <div class="panel"><h2>Backup / Restore</h2><div class="actions"><button id="backup" class="btn">Backup JSON</button><label class="file btn">Restore JSON<input id="restore" type="file" accept=".json" hidden></label></div><p class="muted">Backup contains sales, purchases, payments, settings and local records.</p></div>
+    <div class="panel"><h2>Google Sheet</h2><p class="muted">PC + phone data sync. Push local data or load the latest saved database from Google Sheet.</p><div class="actions"><button id="syncNow" class="btn primary">Sync to Sheet</button><button id="loadSync" class="btn">Load from Sheet</button></div><small id="syncStatus" class="muted">Use Sync to Sheet after saving new entries.</small></div>
+    <div class="panel"><h2>Password Recovery</h2><p class="muted">Recovery email: <b>Urronak2@gmail.com</b></p><button id="otp" class="btn">Recovery Info</button></div>
+  </div>
+</section>
+</main>
+</div>
+
+<nav class="bottom"><button data-page="dashboard">🏠<small>Home</small></button><button data-page="sale">🚜<small>Sale</small></button><button data-page="purchase">🧾<small>Purchase</small></button><button data-page="stock">📦<small>Stock</small></button><button data-page="orders">🛒<small>Order</small></button><button data-page="suppliers">🏭<small>Supplier</small></button></nav>
+
+<div id="modal" class="modal hidden"><div class="modalbox"><button id="close" class="x">×</button><div id="modalTitle" class="modal-title"></div><div id="modalBody"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<script src="config.js?v=final15"></script>
+<script src="parts-data.js?v=final16"></script>
+<script src="app.js?v=final16"></script>
+</body>
+</html>
