@@ -240,6 +240,43 @@ function nav(page){
   });
 }
 document.querySelectorAll("[data-page]").forEach(x=>x.onclick=()=>nav(x.dataset.page));
+// ===== MOBILE MORE MENU FIX =====
+(function initMobileMore(){
+
+  const moreBtn = document.getElementById("mobileMore");
+  const sheet = document.getElementById("mobileMoreSheet");
+  const closeBtn = document.getElementById("mobileMoreX");
+  const backdrop = document.getElementById("mobileMoreClose");
+
+  if (!moreBtn || !sheet) return;
+
+  const openMore = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    sheet.classList.remove("hidden");
+  };
+
+  const closeMore = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    sheet.classList.add("hidden");
+  };
+
+  moreBtn.addEventListener("click", openMore);
+  closeBtn?.addEventListener("click", closeMore);
+  backdrop?.addEventListener("click", closeMore);
+
+  sheet.querySelectorAll("[data-page]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      sheet.classList.add("hidden");
+      nav(btn.dataset.page);
+    });
+  });
+
+})();
+// ===== END MOBILE MORE MENU FIX =====
 document.addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(b)b.classList.add("tap-active");});
 document.addEventListener("pointerup",e=>{const b=e.target.closest("button");if(b)setTimeout(()=>b.classList.remove("tap-active"),180);});
 document.addEventListener("pointercancel",e=>{const b=e.target.closest("button");if(b)b.classList.remove("tap-active");});
