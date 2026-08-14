@@ -32,3 +32,19 @@ This build is based on the working Current Stock version.
 - Use `Sync to Sheet` to push the current device data.
 - Use `Load from Sheet` to restore the saved central database on another device.
 - After replacing the Apps Script code, deploy a new Web App version using the same deployment URL.
+
+
+## V20 updates
+- Quick Management moved to the bottom of Dashboard, after Mechanic-wise / Stock / Recent sections.
+- Supplier Summary is shown lower on Dashboard; Mahaveera Agro is not placed in the top KPI cards.
+- Mobile bottom navigation now uses More for Order List, Suppliers, Reports, Settings and Accessories.
+- Reports support multi-select checkboxes with Select All / Clear and combined Excel/PDF output.
+- Purchase items can auto-enter Current Stock when the part exists in the catalogue but was not yet in Current Stock; the purchased quantity then becomes stock.
+- Purchase History has Edit and Delete; stock is recalculated from the transaction history.
+- Supplier detail has Excel and PDF/Print export.
+- Accessories are separate from spare-parts stock: Hitch - 242, Hitch - 380, Batta, Hood Red, Hood Blue, Hood Silver.
+- PWA/iPhone/Android icons use the PRABHA AUTO logo.
+- Mobile button tap feedback was added.
+- Service Manager sidebar logo fit was corrected.
+
+Note: the supplied V16 package contains 284 `stockMaster:true` records. The exact additional 40/39 records needed to reach the user's stated 324-master list were not present in the supplied ZIP, so they are not guessed or fabricated.

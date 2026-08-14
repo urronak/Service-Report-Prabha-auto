@@ -17,6 +17,14 @@ const INVOICE_STOCK=[
 ];
 const DEFAULT_SUPPLIERS=["Ganpati Automobile","Mahaveera Agro"];
 const DEFAULT_MACHINES=["Bijandra Yadav","Ajay Kumar","Vijay Patil"];
+const ACCESSORIES=[
+  {name:"Hitch - 242",type:"Hitch"},
+  {name:"Hitch - 380",type:"Hitch"},
+  {name:"Batta",type:"Accessory"},
+  {name:"Hood Red",type:"Hood"},
+  {name:"Hood Blue",type:"Hood"},
+  {name:"Hood Silver",type:"Hood"}
+];
 const $=id=>document.getElementById(id);
 const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
 const money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:0,maximumFractionDigits:2});
@@ -28,7 +36,7 @@ const uid=p=>p+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,8);
 function emptyDB(){
  return {version:3,sales:[],issues:[],purchases:[],payments:[],
    settings:{business:"PRABHA AUTO",manager:"Chanchal Kumar",mobile:"9693124739",email:"Urronak2@gmail.com",low:2,machines:[...DEFAULT_MACHINES],suppliers:[...DEFAULT_SUPPLIERS]},
-   seeded:{invoiceStock:true},parts:[],deletedParts:[]};
+   seeded:{invoiceStock:true},parts:[],deletedParts:[],accessories:[],deletedAccessories:[]};
 }
 function loadDB(){
  let raw=localStorage.getItem(KEY);
@@ -42,6 +50,8 @@ function loadDB(){
  d.payments=Array.isArray(d.payments)?d.payments:[];
  d.parts=Array.isArray(d.parts)?d.parts:[];
  d.deletedParts=Array.isArray(d.deletedParts)?d.deletedParts:[];
+ d.accessories=Array.isArray(d.accessories)?d.accessories:[];
+ d.deletedAccessories=Array.isArray(d.deletedAccessories)?d.deletedAccessories:[];
  d.settings={...e.settings,...(d.settings||{})};
  d.settings.machines=(d.settings.machines||DEFAULT_MACHINES).filter(Boolean);
  d.settings.suppliers=[...new Set([...(d.settings.suppliers||[]),...DEFAULT_SUPPLIERS])];
@@ -106,6 +116,69 @@ function printRows(rows,title){
  printHTML(`<div class="print-head"><img src="prabha-auto-logo.png"><div><h1>PRABHA AUTO</h1><div>Authorised Dealer • EICHER TRACTORS</div><div class="muted">Service Manager: ${esc(db.settings.manager||"Chanchal Kumar")} • ${esc(db.settings.mobile||"9693124739")}</div></div></div><h2>${esc(title)}</h2>${table(rows,keys)}<div class="footer">Generated on ${fmt(today())}</div>`,title);
 }
 
+function ensurePurchasePart(code){
+ const key=String(code||"").trim().toLowerCase();
+ if(!key)return null;
+ const existing=part(key);
+ const current=existing&&stock()[existing.code];
+ if(current)return current;
+ const master=existing||MAP.get(key);
+ if(!master)return null;
+ const p={code:String(master.code).trim(),name:master.name||"",hsn:master.hsn||"",mrp:Number(master.mrp||0),ndp:Number(master.ndp||0),gst:master.gst||"0",openingStock:0,stockMaster:true,supplier:master.supplier||"",source:"purchase-auto-added"};
+ db.parts=db.parts||[];
+ db.parts=db.parts.filter(x=>String(x.code).trim().toLowerCase()!==key);
+ db.parts.push(p);
+ db.deletedParts=(db.deletedParts||[]).filter(x=>String(x).trim().toLowerCase()!==key);
+ return p;
+}
+
+
+const DEFAULT_ACCESSORIES=[
+ {id:"acc-h242",code:"ACC-H242",name:"HITCH - 242",category:"Hitch",mrp:0,ndp:0,gst:"0%",qty:0,supplier:"Mahaveera Agro"},
+ {id:"acc-h380",code:"ACC-H380",name:"HITCH - 380",category:"Hitch",mrp:0,ndp:0,gst:"0%",qty:0,supplier:"Mahaveera Agro"},
+ {id:"acc-batta",code:"ACC-BATTA",name:"BATTA",category:"Accessory",mrp:0,ndp:0,gst:"0%",qty:0,supplier:"Mahaveera Agro"},
+ {id:"acc-hood-red",code:"ACC-HOOD-RED",name:"HOOD - RED",category:"Hood",mrp:0,ndp:0,gst:"0%",qty:0,supplier:"Mahaveera Agro"},
+ {id:"acc-hood-blue",code:"ACC-HOOD-BLUE",name:"HOOD - BLUE",category:"Hood",mrp:0,ndp:0,gst:"0%",qty:0,supplier:"Mahaveera Agro"},
+ {id:"acc-hood-silver",code:"ACC-HOOD-SILVER",name:"HOOD - SILVER",category:"Hood",mrp:0,ndp:0,gst:"0%",qty:0,supplier:"Mahaveera Agro"}
+];
+function ensureAccessories(){
+ const existing=new Map((db.accessories||[]).map(x=>[String(x.id||x.code||"").toLowerCase(),x]));
+ DEFAULT_ACCESSORIES.forEach(d=>{if(!existing.has(d.id.toLowerCase())&&!db.deletedAccessories.includes(d.id)) db.accessories.push({...d});});
+ return db.accessories;
+}
+function accessoryRows(){return ensureAccessories().filter(x=>!x.deleted);}
+function accessoryExportRows(){return accessoryRows().map(x=>({Code:x.code||"",Item_Name:x.name||"",Category:x.category||"",MRP:Number(x.mrp||0),NDP:Number(x.ndp||0),GST:x.gst||"",Current_Stock:Number(x.qty||0),Supplier:x.supplier||""}));}
+function accessoryPrint(){
+ const rows=accessoryExportRows().map(x=>({...x,MRP:money(x.MRP),NDP:money(x.NDP),Current_Stock:String(x.Current_Stock)}));
+ if(!rows.length)return toast("No accessories to print","error");
+ printRows(rows,"PRABHA AUTO ACCESSORIES");
+}
+function accessoryModal(id){
+ ensureAccessories();
+ const x=id?db.accessories.find(v=>v.id===id):null;
+ openModal(`<div class="form"><h2>${x?"✏️ Edit Accessory":"+ Add Accessory"}</h2>
+ <div class="grid2"><label>Item Name<input id="acName" value="${esc(x?.name||"")}" placeholder="Hitch / Hood / Batta"></label><label>Code<input id="acCode" value="${esc(x?.code||"")}" placeholder="Accessory code"></label>
+ <label>Category<input id="acCategory" value="${esc(x?.category||"")}" placeholder="Hitch / Hood / Accessory"></label><label>Supplier<select id="acSupplier">${(db.settings.suppliers||[]).map(s=>`<option ${s===(x?.supplier||"Mahaveera Agro")?"selected":""}>${esc(s)}</option>`).join("")}</select></label>
+ <label>MRP<input id="acMrp" type="number" step=".01" value="${Number(x?.mrp||0)}"></label><label>NDP<input id="acNdp" type="number" step=".01" value="${Number(x?.ndp||0)}"></label>
+ <label>GST %<input id="acGst" value="${esc(x?.gst||"0%")}"></label><label>Current Quantity<input id="acQty" type="number" min="0" step="1" value="${Number(x?.qty||0)}"></label></div>
+ <div class="actions"><button id="acSave" class="btn primary">Save</button><button id="acCancel" class="btn">Cancel</button></div></div>`);
+ $("acCancel").onclick=closeModal;
+ $("acSave").onclick=()=>{
+   const name=$("acName").value.trim(),code=$("acCode").value.trim();
+   if(!name||!code)return toast("Item Name and Code required","error");
+   const duplicate=db.accessories.some(v=>v.id!==id&&!v.deleted&&String(v.code).toLowerCase()===code.toLowerCase());
+   if(duplicate)return toast("Accessory code already exists","error");
+   const item={id:id||uid("acc"),code,name,category:$("acCategory").value.trim()||"Accessory",mrp:+$("acMrp").value||0,ndp:+$("acNdp").value||0,gst:$("acGst").value.trim()||"0%",qty:+$("acQty").value||0,supplier:$("acSupplier").value||"Mahaveera Agro"};
+   if(id){const i=db.accessories.findIndex(v=>v.id===id);db.accessories[i]=item}else db.accessories.push(item);
+   persist("Accessories Saved");closeModal();toast(id?"Accessory updated":"Accessory added");
+ };
+}
+function accessoryView(){
+ const list=accessoryRows();
+ if($("accessoryTable")) $("accessoryTable").innerHTML=list.length?`<div class="table"><table><thead><tr><th>Code</th><th>Item Name</th><th>Category</th><th>MRP</th><th>NDP</th><th>GST</th><th>Stock</th><th>Supplier</th><th>Action</th></tr></thead><tbody>${list.map(x=>`<tr><td>${esc(x.code)}</td><td><b class="accessory-name">${esc(x.name)}</b></td><td>${esc(x.category)}</td><td>${money(x.mrp)}</td><td>${money(x.ndp)}</td><td>${esc(x.gst)}</td><td><b>${Number(x.qty||0)}</b></td><td>${esc(x.supplier||"")}</td><td><button class="mini" onclick="window.editAccessory('${esc(x.id)}')">✏️ Edit</button> <button class="mini dangerMini" onclick="window.deleteAccessory('${esc(x.id)}')">🗑️ Delete</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No accessories</div>`;
+}
+window.editAccessory=id=>accessoryModal(id);
+window.deleteAccessory=id=>{const x=db.accessories.find(v=>v.id===id);if(!x)return;if(!confirm(`Delete ${x.name}?`))return;db.accessories=db.accessories.filter(v=>v.id!==id);if(!db.deletedAccessories.includes(id))db.deletedAccessories.push(id);persist("Accessory Deleted");toast("Accessory deleted")};
 function stock(){
  const s={};
  PARTS.filter(p=>p.stockMaster===true&&!db.deletedParts.includes(String(p.code))).forEach(p=>s[String(p.code)]={...p,qty:Number(p.openingStock||0)});
@@ -131,6 +204,10 @@ function nav(page){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll("[data-page]").forEach(x=>x.onclick=()=>nav(x.dataset.page));
+document.addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(b)b.classList.add("tap-active");});
+document.addEventListener("pointerup",e=>{const b=e.target.closest("button");if(b)setTimeout(()=>b.classList.remove("tap-active"),180);});
+document.addEventListener("pointercancel",e=>{const b=e.target.closest("button");if(b)b.classList.remove("tap-active");});
+
 $("logout").onclick=()=>{localStorage.removeItem("pa");sessionStorage.removeItem("pa");location.reload()};
 $("close").onclick=closeModal;
 $("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
@@ -178,7 +255,26 @@ function dashboard(){
  $("stockStatus").innerHTML=`<p>🟢 In Stock <b>${av}</b></p><p>🟠 Low Stock <b>${l}</b></p><p>🔴 Out of Stock <b>${z}</b></p><small>${s.length.toLocaleString()} parts in Current Stock Excel</small>`;
  const rec=[...db.sales.map(x=>({d:x.date,t:"SALE",n:x.customer,a:x.final})),...db.purchases.map(x=>({d:x.date,t:"PURCHASE",n:x.supplier,a:x.amount})),...db.payments.map(x=>({d:x.date,t:"PAYMENT",n:x.party,a:x.amount}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,7);
  $("recent").innerHTML=rec.length?rec.map(x=>`<div class="recent"><span>${esc(x.t)}</span><b>${esc(x.n||"-")}</b><strong>${money(x.a)}</strong></div>`).join(""):"<div class=empty>No transactions</div>";
+ renderDashboardSuppliers();
  $("badge").textContent=low().length+zero().length;
+
+
+}
+
+function renderDashboardSuppliers(){
+ const el=$("dashboardSuppliers");
+ if(!el)return;
+ const suppliers=[...new Set([...(db.settings.suppliers||[]),...DEFAULT_SUPPLIERS])];
+ el.innerHTML=suppliers.map(name=>{
+   const purchases=db.purchases.filter(x=>x.supplier===name);
+   const payments=db.payments.filter(x=>x.party===name&&x.type==="Supplier Payment");
+   const purchaseTotal=total(purchases,"amount");
+   const paidTotal=total(payments,"amount");
+   const balance=paidTotal-purchaseTotal;
+   const label=balance>=0?"Credit / Advance":"Outstanding Due";
+   return `<button type="button" class="supplier-summary-card" data-supplier="${esc(name)}"><b>${esc(name)}</b><span>Purchase ${money(purchaseTotal)} • Paid ${money(paidTotal)}</span><strong>${label}: ${money(Math.abs(balance))}</strong></button>`;
+ }).join("");
+ el.querySelectorAll("[data-supplier]").forEach(b=>b.onclick=()=>{if(typeof window.supplierDetail==="function")window.supplierDetail(b.dataset.supplier);else nav("suppliers")});
 }
 
 function fillMachines(){
@@ -354,8 +450,9 @@ function orderTotals(){
  document.querySelectorAll(".oq").forEach(e=>{const p=part(e.dataset.code),q=Number(e.value)||0,n=q*Number(p?.ndp||0),g=n*(parseFloat(p?.gst)||0)/100;ndp+=n;gst+=g;e.closest("tr").querySelector(".opay").textContent=money(n+g)});
  $("ordNdp").textContent=money(ndp);$("ordGst").textContent=money(gst);$("ordTotal").textContent=money(ndp+gst);
 }
-$("stockCsv").onclick=()=>excel(rows().map(x=>({Code:x.code,Part_Name:x.name,HSN:x.hsn||"",MRP:x.mrp||0,NDP:x.ndp||0,GST:x.gst||"",Current_Stock:x.qty||0,Supplier:x.supplier||""})),"prabha-current-stock");
-$("stockPrint").onclick=()=>printRows(rows().map(x=>({Code:x.code,Part_Name:x.name,HSN:x.hsn||"",MRP:x.mrp||0,NDP:x.ndp||0,GST:x.gst||"",Current_Stock:x.qty||0,Supplier:x.supplier||""})),"PRABHA AUTO CURRENT STOCK");
+const stockExportRows=()=>rows().map(x=>({Code:x.code,Part_Name:x.name,HSN:x.hsn||"",MRP:x.mrp||0,NDP:x.ndp||0,GST:x.gst||"",Current_Stock:Number(x.qty||0),Supplier:x.supplier||""}));
+$("stockCsv").onclick=()=>excel(stockExportRows(),"prabha-current-stock");
+$("stockPrint").onclick=()=>printRows(stockExportRows().map(x=>({...x,Current_Stock:String(x.Current_Stock)})),"PRABHA AUTO CURRENT STOCK");
 $("orderFilter").onchange=orderView;$("lowLimit").oninput=()=>{db.settings.low=Math.max(0,Number($("lowLimit").value)||0);localStorage.setItem(KEY,JSON.stringify(db));renderAll()};
 function orderRows(){
  return [...document.querySelectorAll(".oq")].map(e=>{const p=part(e.dataset.code),q=Number(e.value)||0;return q?{code:p.code,name:p.name,current:stock()[p.code].qty,ndp:p.ndp,gst:p.gst,orderQty:q,payable:q*p.ndp*(1+(parseFloat(p.gst)||0)/100)}:null}).filter(Boolean);
@@ -374,7 +471,12 @@ function purchaseModal(){
  $("psave").onclick=()=>{
    const f=$("photo").files[0],done=photo=>{
      const items=[...document.querySelectorAll(".purchase-line")].map(e=>({code:e.querySelector(".pcode").value.trim(),qty:Number(e.querySelector(".pqty").value)||0})).filter(x=>x.code);
-     for(const i of items)if(!part(i.code)||!stock()[i.code])return toast("Purchase part must exist in Current Stock Excel","error");
+     for(const i of items){
+       if(!i.qty||i.qty<1)return toast("Purchase quantity must be greater than 0","error");
+       const p=part(i.code);
+       if(!p)return toast(`Part Code ${i.code} not found in the Parts Master`,"error");
+       if(!stock()[p.code])ensurePurchasePart(p.code);
+     }
      const x={id:uid("purchase"),invoice:$("pinv").value.trim(),date:$("pdate").value,supplier:$("psup").value,amount:Number($("pamt").value)||0,items,photo,timestamp:new Date().toISOString()};
      if(!x.amount&&!items.length)return toast("Enter amount or purchase items","error");
      db.purchases.push(x);persist("Purchase Saved");closeModal();showSuccess("Purchase saved",`Supplier: ${x.supplier}`);
@@ -388,9 +490,21 @@ function purchaseHistoryView(){
  const q=($("purchaseSearch").value||"").toLowerCase(),from=$("purchaseFrom").value||"0000-01-01",to=$("purchaseTo").value||"9999-12-31";
  const rows=db.purchases.filter(x=>between(x.date,from,to)&&(`${x.invoice} ${x.supplier} ${(x.items||[]).map(i=>i.code).join(" ")}`).toLowerCase().includes(q)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  $("recentPurchases").innerHTML=rows.length?table(rows.slice(0,5).map(x=>({invoice:x.invoice||"-",date:fmt(x.date),supplier:x.supplier,amount:money(x.amount),photo:x.photo?"Yes":"No"}))):`<div class=empty>No recent purchases</div>`;
- $("purchaseHistory").innerHTML=rows.length?`<div class="table"><table><thead><tr><th>Invoice</th><th>Date</th><th>Supplier</th><th>Amount</th><th>Items</th><th>Invoice</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.invoice||"-")}</td><td>${fmt(x.date)}</td><td>${esc(x.supplier)}</td><td>${money(x.amount)}</td><td>${(x.items||[]).length}</td><td><button class="mini" onclick="window.viewPurchase('${esc(x.id)}')">Open</button></td></tr>`).join("")}</tbody></table></div>`:`<div class=empty>No purchase history</div>`;
+ $("purchaseHistory").innerHTML=rows.length?`<div class="table"><table><thead><tr><th>Invoice</th><th>Date</th><th>Supplier</th><th>Amount</th><th>Items</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.invoice||"-")}</td><td>${fmt(x.date)}</td><td>${esc(x.supplier)}</td><td>${money(x.amount)}</td><td>${(x.items||[]).length}</td><td><button class="mini" onclick="window.viewPurchase('${esc(x.id)}')">Open</button> <button class="mini" onclick="window.editPurchase('${esc(x.id)}')">✏️ Edit</button> <button class="mini dangerMini" onclick="window.deletePurchase('${esc(x.id)}')">🗑️ Delete</button></td></tr>`).join("")}</tbody></table></div>`:`<div class=empty>No purchase history</div>`;
 }
 window.viewPurchase=id=>{const x=db.purchases.find(p=>p.id===id);if(!x)return;openModal(`<h2>Purchase ${esc(x.invoice||"-")}</h2><p><b>Supplier:</b> ${esc(x.supplier)} • <b>Date:</b> ${fmt(x.date)} • <b>Amount:</b> ${money(x.amount)}</p>${x.items?.length?table(x.items.map(i=>({code:i.code,qty:i.qty,name:part(i.code)?.name||"Unknown"}))):""}${x.photo?`<img class="photo" src="${x.photo}" alt="Invoice">`:"<p class=muted>No invoice photo saved.</p>"}<div class=actions><button class="btn" id="pprint">Print</button><button class="btn" id="pclose">Close</button></div>`);$("pprint").onclick=()=>printHTML(`<div class="print-head"><img src="prabha-auto-logo.png"><div><h1>PRABHA AUTO</h1><div>Purchase Invoice Record</div><div class="muted">Supplier: ${esc(x.supplier)} • Invoice: ${esc(x.invoice||"-")} • ${fmt(x.date)}</div></div></div>${x.items?.length?table(x.items):""}<div class="total right">Amount: ${money(x.amount)}</div>`,"PRABHA AUTO PURCHASE");$("pclose").onclick=closeModal};
+
+function purchaseEditor(x){
+ const opts=db.settings.suppliers.map(s=>`<option ${s===x.supplier?"selected":""}>${esc(s)}</option>`).join("");
+ openModal(`<div class="form"><h2>✏️ Edit Purchase</h2><div class="grid2"><label>Invoice No.<input id="epinv" value="${esc(x.invoice||"")}"></label><label>Date<input id="epdate" type=date value="${esc(x.date||today())}"></label><label>Supplier<select id="epsup">${opts}</select></label><label>Total Amount<input id="epamt" type=number step=.01 value="${Number(x.amount||0)}"></label></div><div class="rowhead"><h3>Purchase Items</h3><button class="btn" id="epadd">+ Add Part</button></div><div id="epitems"></div><p class="muted">Edit/Delete automatically recalculates Current Stock.</p><div class="actions"><button id="epsave" class="btn primary">Save Changes</button><button id="epcancel" class="btn">Cancel</button></div></div>`);
+ const addLine=(item={code:"",qty:1})=>{const d=document.createElement("div");d.className="purchase-line";d.innerHTML=`<input class="epcode" placeholder="Part Code" value="${esc(item.code)}"><input class="epqty" type=number min=1 value="${Number(item.qty)||1}"><span class="epname muted">${esc(part(item.code)?.name||"Part name")}</span><button class="del">×</button>`;$("epitems").appendChild(d);d.querySelector(".epcode").oninput=()=>{const p=part(d.querySelector(".epcode").value);d.querySelector(".epname").textContent=p?p.name:"Part not found"};d.querySelector(".del").onclick=()=>d.remove()};
+ (x.items||[]).forEach(addLine); if(!(x.items||[]).length)addLine();
+ $("epadd").onclick=()=>addLine(); $("epcancel").onclick=closeModal;
+ $("epsave").onclick=()=>{const items=[...document.querySelectorAll("#epitems .purchase-line")].map(e=>({code:e.querySelector(".epcode").value.trim(),qty:Number(e.querySelector(".epqty").value)||0})).filter(i=>i.code);for(const i of items){const p=part(i.code);if(!p)return toast(`Part Code ${i.code} not found in the Parts Master`,"error");if(!stock()[p.code])ensurePurchasePart(p.code)}x.invoice=$("epinv").value.trim();x.date=$("epdate").value||today();x.supplier=$("epsup").value;x.amount=Number($("epamt").value)||0;x.items=items;persist("Purchase Updated");closeModal();toast("Purchase updated")};
+}
+window.editPurchase=id=>{const x=db.purchases.find(p=>p.id===id);if(x)purchaseEditor(x)};
+window.deletePurchase=id=>{const x=db.purchases.find(p=>p.id===id);if(!x)return;if(!confirm(`Delete purchase ${x.invoice||"-"}? Current Stock will be recalculated.`))return;db.purchases=db.purchases.filter(p=>p.id!==id);persist("Purchase Deleted");toast("Purchase deleted and stock recalculated")};
+
 
 function supplierView(){
  const suppliers=db.settings.suppliers;
@@ -407,8 +521,12 @@ window.supplierDetail=name=>{
  const payments=db.payments.filter(x=>x.party===name&&x.type==="Supplier Payment");
  const pv=total(purchases,"amount"),paid=total(payments,"amount"),bal=paid-pv;
  const label=bal>=0?"Credit / Advance":"Due";
- openModal(`<h2>${esc(name)}</h2><div class="ledger total"><b>Purchase</b><strong>${money(pv)}</strong></div><div class="ledger"><b>Paid</b><strong>${money(paid)}</strong></div><div class="ledger"><b>${label}</b><strong>${money(Math.abs(bal))}</strong></div><h3>Purchase History</h3>${table(purchases.map(x=>({invoice:x.invoice||"-",date:fmt(x.date),amount:money(x.amount)})))}<h3>Payment History</h3>${table(payments.map(x=>({date:fmt(x.date),amount:money(x.amount),mode:x.mode,utr:x.utr||"-"})))}<div class=actions><button class="btn" id="sdClose">Close</button></div>`);$("sdClose").onclick=closeModal;
+ openModal(`<h2>${esc(name)}</h2><div class="ledger total"><b>Purchase</b><strong>${money(pv)}</strong></div><div class="ledger"><b>Paid</b><strong>${money(paid)}</strong></div><div class="ledger"><b>${label}</b><strong>${money(Math.abs(bal))}</strong></div><h3>Purchase History</h3>${table(purchases.map(x=>({invoice:x.invoice||"-",date:fmt(x.date),amount:money(x.amount)})))}<h3>Payment History</h3>${table(payments.map(x=>({date:fmt(x.date),amount:money(x.amount),mode:x.mode,utr:x.utr||"-"})))}<div class=actions><button class="btn" id="sdExcel">Excel</button><button class="btn" id="sdPdf">PDF / Print</button><button class="btn" id="sdClose">Close</button></div>`);
+ $("sdExcel").onclick=()=>excel([...purchases.map(x=>({date:fmt(x.date),type:"Purchase",invoice:x.invoice||"-",amount:x.amount})),...payments.map(x=>({date:fmt(x.date),type:"Payment",invoice:"-",amount:x.amount}))],`supplier-${name.replace(/[^a-z0-9]+/gi,"-").toLowerCase()}`);
+ $("sdPdf").onclick=()=>printRows([...purchases.map(x=>({date:fmt(x.date),type:"Purchase",invoice:x.invoice||"-",amount:money(x.amount)})),...payments.map(x=>({date:fmt(x.date),type:"Payment",invoice:"-",amount:money(x.amount)}))],`PRABHA AUTO - ${name}`);
+ $("sdClose").onclick=closeModal;
 };
+
 function addSupplier(){
  openModal(`<h2>New Supplier</h2><label>Supplier Name<input id="sname" placeholder="Supplier name"></label><div class=actions><button id="saveSup" class="btn primary">Add Supplier</button><button id="scancel" class="btn">Cancel</button></div>`);
  $("saveSup").onclick=()=>{const n=$("sname").value.trim();if(!n)return toast("Supplier name required","error");if(db.settings.suppliers.includes(n))return toast("Supplier already exists","error");db.settings.suppliers.push(n);persist("Supplier Saved");closeModal();toast("New supplier added")};$("scancel").onclick=closeModal;
@@ -437,28 +555,112 @@ function reportRows(type,a,b){
  if(type==="Sales")return sales.map(x=>({date:x.date,invoice:x.invoice,customer:x.customer,machine:x.machine,final:x.final,mode:x.mode,utr:x.utr||""}));
  if(type==="Purchase")return purchases.map(x=>({date:x.date,invoice:x.invoice,supplier:x.supplier,amount:x.amount,items:(x.items||[]).length}));
  if(type==="Payments")return db.payments.filter(x=>between(x.date,a,b)).map(x=>({date:x.date,party:x.party,type:x.type,amount:x.amount,mode:x.mode,utr:x.utr||""}));
- if(type==="Stock")return Object.values(stock()).map(x=>({code:x.code,name:x.name,mrp:x.mrp,ndp:x.ndp,gst:x.gst,currentStock:x.qty}));
- if(type==="Order")return Object.values(stock()).filter(x=>x.qty<=Number(db.settings.low??2)).map(x=>({code:x.code,name:x.name,current:x.qty,ndp:x.ndp,gst:x.gst}));
+ if(type==="Stock")return Object.values(stock()).map(x=>({code:x.code,name:x.name,mrp:x.mrp,ndp:x.ndp,gst:x.gst,currentStock:Number(x.qty||0),supplier:x.supplier||""}));
+ if(type==="Order"){
+   const seen=new Set();
+   return Object.values(stock())
+     .filter(x=>x.qty<=Number(db.settings.low??2))
+     .filter(x=>{const k=String(x.code).trim().toLowerCase();if(!k||seen.has(k))return false;seen.add(k);return true;})
+     .map(x=>({code:x.code,name:x.name,current:x.qty,ndp:x.ndp,gst:x.gst||"",supplier:x.supplier||""}));
+ }
  if(type==="Ganpati")return[
-   ...db.payments.filter(x=>x.party==="Ganpati Automobile"&&x.type==="Supplier Payment").map(x=>({entry:"Payment / Advance",amount:x.amount,date:x.date})),
-   ...db.purchases.filter(x=>x.supplier==="Ganpati Automobile").map(x=>({entry:`Purchase ${x.invoice||"-"}`,amount:-Number(x.amount||0),date:x.date}))
+   ...db.payments.filter(x=>x.party==="Ganpati Automobile"&&x.type==="Supplier Payment"&&between(x.date,a,b)).map(x=>({entry:"Payment / Advance",amount:x.amount,date:x.date})),
+   ...purchases.filter(x=>x.supplier==="Ganpati Automobile").map(x=>({entry:`Purchase ${x.invoice||"-"}`,amount:-Number(x.amount||0),date:x.date}))
  ];
- return [
-   ...sales.map(x=>({date:x.date,type:"Sale",party:x.customer,amount:x.final})),
-   ...purchases.map(x=>({date:x.date,type:"Purchase",party:x.supplier,amount:x.amount})),
-   ...db.payments.filter(x=>between(x.date,a,b)).map(x=>({date:x.date,type:x.type,party:x.party,amount:x.amount}))
- ];
+ return [];
 }
+
+// Stock is available as its own report, but is intentionally NOT included in Complete.
+// This prevents the full spare-parts master from flooding the normal business report.
+const REPORT_TYPES=["Sales","Purchase","Payments","Order","Ganpati","Stock"];
+const COMPLETE_REPORT_TYPES=["Sales","Purchase","Payments","Order","Ganpati"];
+
+function selectedReportTypes(){
+ const checks=[...document.querySelectorAll(".reportCheck:checked")].map(x=>x.value);
+ if(checks.includes("Complete"))return COMPLETE_REPORT_TYPES.slice();
+ return [...new Set(checks.filter(x=>REPORT_TYPES.includes(x)))];
+}
+
+function updateReportPickerLabel(){
+ const selected=selectedReportTypes();
+ const complete=document.querySelector('.reportCheck[value="Complete"]')?.checked;
+ if($("reportPickerBtn"))$("reportPickerBtn").innerHTML=`${complete?"✓ ":""}${complete?"Complete":selected.length?selected.join(", "):"Select reports"} <span>▾</span>`;
+}
+
+const REPORT_COLUMNS={
+ Sales:["date","invoice","customer","machine","final","mode","utr"],
+ Purchase:["date","invoice","supplier","amount","items"],
+ Payments:["date","party","type","amount","mode","utr"],
+ Order:["code","name","current","ndp","gst","supplier"],
+ Ganpati:["date","entry","amount"],
+ Stock:["code","name","mrp","ndp","gst","currentStock","supplier"]
+};
+const REPORT_LABELS={date:"Date",invoice:"Invoice",customer:"Customer",machine:"Machine",final:"Final",mode:"Mode",utr:"UTR",
+ party:"Party",type:"Type",amount:"Amount",items:"Items",code:"Code",name:"Name",current:"Current Stock",mrp:"MRP",
+ ndp:"NDP",gst:"GST",supplier:"Supplier",entry:"Entry",currentStock:"Current Stock"};
+
+function reportTable(type,rows){
+ if(!rows.length)return `<div class="empty">No ${esc(type)} data for selected dates</div>`;
+ const cols=REPORT_COLUMNS[type]||Object.keys(rows[0]);
+ return `<div class="report-section"><div class="report-section-title"><b>${esc(type)}</b><span>${rows.length} row${rows.length===1?"":"s"}</span></div><div class="table"><table><thead><tr>${
+   cols.map(k=>`<th>${esc(REPORT_LABELS[k]||k)}</th>`).join("")
+ }</tr></thead><tbody>${
+   rows.map(r=>`<tr>${cols.map(k=>{
+     const v=r[k];
+     if(v===undefined||v===null||v==="")return "<td></td>";
+     if(["final","amount","mrp","ndp"].includes(k))return `<td>${money(v)}</td>`;
+     return `<td>${esc(String(v))}</td>`;
+   }).join("")}</tr>`).join("")
+ }</tbody></table></div></div>`;
+}
+
 let lastReport=[];
 function makeReport(){
  const [a,b]=[$("rFrom").value||"1900-01-01",$("rTo").value||today()];
- lastReport=reportRows($("reportType").value,a,b);
- $("report").innerHTML=lastReport.length?table(lastReport):`<div class=empty>No report data for selected dates</div>`;
+ const types=selectedReportTypes();
+ lastReport=[];
+ const sections=[];
+ types.forEach(type=>{
+   const rows=reportRows(type,a,b);
+   rows.forEach(row=>lastReport.push({Report:type,...row}));
+   sections.push(reportTable(type,rows));
+ });
+ $("report").innerHTML=sections.length?sections.join(""):`<div class="empty">Select at least one report</div>`;
+ updateReportPickerLabel();
 }
 $("makeReport").onclick=makeReport;
 $("rAllDates").onclick=()=>{$("rFrom").value="1900-01-01";$("rTo").value=today();makeReport()};
 $("reportCsv").onclick=()=>excel(lastReport,"prabha-report");
-$("reportPrint").onclick=()=>printRows(lastReport,"PRABHA AUTO REPORT");
+$("reportPrint").onclick=()=>{
+ const [a,b]=[$("rFrom").value||"1900-01-01",$("rTo").value||today()];
+ const types=selectedReportTypes();
+ if(!types.length)return toast("Select at least one report","error");
+ const body=types.map(type=>{
+   const rows=reportRows(type,a,b);
+   if(!rows.length)return "";
+   const cols=REPORT_COLUMNS[type]||Object.keys(rows[0]);
+   const mapped=rows.map(r=>{const o={};cols.forEach(k=>{o[REPORT_LABELS[k]||k]=(["final","amount","mrp","ndp"].includes(k)?money(r[k]):(r[k]??""))});return o;});
+   return `<h2>${esc(type)}</h2>${table(mapped,Object.keys(mapped[0]))}`;
+ }).join("");
+ if(!body)return toast("No report data to print","error");
+ printHTML(`<div class="print-head"><img src="prabha-auto-logo.png"><div><h1>PRABHA AUTO</h1><div>Authorised Dealer • EICHER TRACTORS</div><div class="muted">Service Manager: ${esc(db.settings.manager||"Chanchal Kumar")} • ${esc(db.settings.mobile||"9693124739")}</div></div></div>${body}<div class="footer">Generated on ${fmt(today())}</div>`,"PRABHA AUTO REPORT");
+};
+
+function initReportPicker(){
+ const btn=$("reportPickerBtn"),menu=$("reportPickerMenu");if(!btn||!menu)return;
+ btn.onclick=e=>{e.stopPropagation();menu.classList.toggle("hidden")};
+ document.querySelectorAll(".reportCheck").forEach(c=>c.addEventListener("change",()=>{
+   if(c.value==="Complete"&&c.checked){document.querySelectorAll(".reportCheck").forEach(x=>{if(x!==c)x.checked=false});}
+   else if(c.value!=="Complete"&&c.checked){const complete=document.querySelector('.reportCheck[value="Complete"]');if(complete)complete.checked=false;}
+   updateReportPickerLabel();makeReport();
+ }));
+ $("reportSelectAll").onclick=e=>{e.stopPropagation();document.querySelectorAll(".reportCheck").forEach(x=>x.checked=x.value!=="Complete");updateReportPickerLabel();makeReport()};
+ $("reportClearAll").onclick=e=>{e.stopPropagation();document.querySelectorAll(".reportCheck").forEach(x=>x.checked=false);updateReportPickerLabel();makeReport()};
+ menu.addEventListener("click",e=>e.stopPropagation());
+ document.addEventListener("click",e=>{if(!e.target.closest("#reportPicker"))menu.classList.add("hidden")});
+ updateReportPickerLabel();
+}
+
 
 $("saveSettings").onclick=()=>{db.settings.business=$("business").value.trim()||"PRABHA AUTO";db.settings.manager=$("manager").value.trim()||"Chanchal Kumar";db.settings.mobile=$("mobile").value.trim();db.settings.email=$("email").value.trim();db.settings.low=Math.max(0,Number($("settingLow").value)||0);persist("Settings Saved");toast("Settings saved")};
 $("saveMachines").onclick=()=>{db.settings.machines=[$("m1").value.trim(),$("m2").value.trim(),$("m3").value.trim()].filter(Boolean);persist("Machines Saved");toast("Machine names saved")};
@@ -473,7 +675,10 @@ function cloudUrl(){
  return window.PRABHA_CONFIG?.GOOGLE_SCRIPT_URL||"";
 }
 function hasLocalTransactions(){
- return !!(db.sales.length||db.purchases.length||db.payments.length||db.issues.length||db.parts.length);
+ return !!(db.sales.length||db.purchases.length||db.payments.length||db.issues.length||db.parts.length||db.accessories.length||db.deletedParts.length||db.deletedAccessories.length);
+}
+function hasLocalDatabase(){
+ return hasLocalTransactions() || !!db._syncUpdatedAt || !!db._ganpatiResetV1;
 }
 function setSyncStatus(text){
  if($("syncStatus"))$("syncStatus").textContent=text;
@@ -512,7 +717,7 @@ async function loadFromSheet(options={}){
    const j=await r.json();
    if(!j.success)throw Error(j.error||"Load failed");
    if(!j.data){
-     if(hasLocalTransactions()) return await syncToSheet({silent:true});
+     if(hasLocalDatabase()) return await syncToSheet({silent:true});
      if(!options.silent)toast("Google Sheet has no saved database yet","error");
      return false;
    }
@@ -560,14 +765,27 @@ $("forgot").onclick=$("otp").onclick=()=>toast("Recovery endpoint is not configu
 $("forgot").onclick=$("otp").onclick=()=>toast("Recovery endpoint is not configured. Use the configured recovery email.","error");
 $("dashRange").onchange=()=>{const c=$("dashRange").value==="custom";$("dashFrom").classList.toggle("hidden",!c);$("dashTo").classList.toggle("hidden",!c);dashboard()};
 $("dashApply").onclick=dashboard;
-$("dashRefresh").onclick=refreshDashboard;
+$("dashRefresh").onclick=async()=>{const b=$("dashRefresh");b.classList.add("tap-active");b.textContent="↻ Refreshing…";try{await refreshDashboard()}finally{b.textContent="↻ Refresh";setTimeout(()=>b.classList.remove("tap-active"),250)}};
 $("saleSearch").oninput=saleHistory;
 $("stockSearch").oninput=stockView;
 $("stockFilter").onchange=stockView;
 $("addPart").onclick=addPart;
 $("editSelectedPart").onclick=()=>{const c=selectedPartCode();c?editPart(c):toast("Select a part first","error")};
 $("deleteSelectedPart").onclick=()=>{const c=selectedPartCode();c?deletePart(c):toast("Select a part first","error")};
-function renderAll(){fillMachines();dashboard();stockView();orderView();purchaseHistoryView();supplierView();saleHistory();makeReport()}
-$("saleDate").value=today();$("rFrom").value=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);$("rTo").value=today();addItem();renderAll();
+function initMobileMore(){
+ const sheet=$("mobileMoreSheet");
+ const close=()=>sheet?.classList.add("hidden");
+ $("mobileMore")?.addEventListener("click",()=>sheet?.classList.toggle("hidden"));
+ $("mobileMoreClose")?.addEventListener("click",close);
+ $("mobileMoreX")?.addEventListener("click",close);
+ sheet?.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>{close();nav(b.dataset.page)}));
+}
+
+$("addAccessory")?.addEventListener("click",()=>accessoryModal());
+$("accessoryExcel")?.addEventListener("click",()=>excel(accessoryExportRows(),"prabha-accessories"));
+$("accessoryPrint")?.addEventListener("click",accessoryPrint);
+ensureAccessories();
+function renderAll(){fillMachines();dashboard();stockView();orderView();purchaseHistoryView();supplierView();saleHistory();accessoryView();makeReport()}
+initReportPicker();initMobileMore();$("saleDate").value=today();$("rFrom").value=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);$("rTo").value=today();addItem();renderAll();
 if($("app")&&!$("app").classList.contains("hidden"))startCloudSync();
 })();

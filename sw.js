@@ -1,4 +1,4 @@
-const CACHE = "prabha-auto-final-v16";
+const CACHE = "prabha-auto-final-v21";
 const ASSETS = ["./","./index.html","./style.css","./app.js","./config.js","./parts-data.js","./manifest.json","./icon.svg","./prabha-auto-logo.png","./prabha-auto-icon-192.png","./prabha-auto-icon-512.png"];
 
 self.addEventListener("install", event => {

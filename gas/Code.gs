@@ -39,6 +39,7 @@ function doPost(e) {
     writePayments_(ss, data.payments || []);
     writeStock_(ss, data);
     writeSuppliers_(ss, data);
+    writeAccessories_(ss, data.accessories || []);
 
     return json_({success:true,message:"Google Sheet sync complete",updatedAt:now.toISOString()});
   } catch (err) {
@@ -91,6 +92,12 @@ function writeStock_(ss, data) {
   const headers=["Code","Part Name","HSN","MRP","NDP","GST","Current Stock","Supplier"];
   const rows=Object.keys(master).map(code=>{const p=master[code];return [code,p.name||"",p.hsn||"",p.mrp||0,p.ndp||0,p.gst||"",qty[code]||0,p.supplier||""];});
   writeTable_(ss,"Stock",headers,rows);
+}
+
+function writeAccessories_(ss, accessories) {
+  const headers=["ID","Code","Item Name","Category","MRP","NDP","GST","Current Stock","Supplier"];
+  const rows=(accessories||[]).filter(x=>!x.deleted).map(x=>[x.id||"",x.code||"",x.name||"",x.category||"",x.mrp||0,x.ndp||0,x.gst||"",x.qty||0,x.supplier||""]);
+  writeTable_(ss,"Accessories",headers,rows);
 }
 
 function writeSuppliers_(ss,data) {
