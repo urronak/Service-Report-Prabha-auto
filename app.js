@@ -199,9 +199,45 @@ const low=()=>lowRows();
 const zero=()=>zeroRows();
 
 function nav(page){
- document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
- document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
- window.scrollTo({top:0,behavior:"smooth"});
+
+  // Page show/hide
+  document.querySelectorAll(".page").forEach(x => {
+    x.classList.toggle("active", x.id === page);
+  });
+
+  // Desktop + other navigation
+  document.querySelectorAll("[data-page]").forEach(x => {
+    x.classList.toggle("active", x.dataset.page === page);
+  });
+
+  // MOBILE BOTTOM NAV — direct visual active state
+  document.querySelectorAll("nav.bottom button[data-page]").forEach(btn => {
+
+    const isActive = btn.dataset.page === page;
+
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-current", isActive ? "page" : "false");
+
+    // Direct styling — CSS/cache issue won't affect this
+    if (isActive) {
+      btn.style.background = "rgba(200, 16, 46, 0.14)";
+      btn.style.color = "#c8102e";
+      btn.style.borderRadius = "16px";
+      btn.style.boxShadow = "0 4px 12px rgba(200,16,46,0.16)";
+      btn.style.transform = "translateY(-3px)";
+    } else {
+      btn.style.background = "";
+      btn.style.color = "";
+      btn.style.borderRadius = "";
+      btn.style.boxShadow = "";
+      btn.style.transform = "";
+    }
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 document.querySelectorAll("[data-page]").forEach(x=>x.onclick=()=>nav(x.dataset.page));
 document.addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(b)b.classList.add("tap-active");});
