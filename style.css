@@ -83,431 +83,161 @@ button:active,.tap-active{transform:scale(.97)!important;opacity:.92}
 
 .report-section{margin-top:14px}.report-section:first-child{margin-top:0}.report-section-title{display:flex;justify-content:space-between;align-items:center;padding:10px 2px 7px;color:var(--text)}.report-section-title span{font-size:11px;color:var(--muted)}
 @media(max-width:760px){.reportbar{align-items:stretch}.report-picker{width:100%}.reportbar>.btn,.reportbar>input{width:100%}.report-section .table{overflow-x:auto}.report-section table{min-width:700px}}
-/* =====================================================
-   PRABHA AUTO - MOBILE BOTTOM NAV
-   Phone only | Desktop untouched
-   ===================================================== */
 
-@media (max-width: 700px) {
+/* =========================================================
+   PRABHA AUTO - FINAL MOBILE BOTTOM NAVIGATION
+   Mobile only. Desktop styles are intentionally untouched.
+   ========================================================= */
+@media (max-width: 760px) {
+  body { padding-bottom: 105px !important; }
 
   nav.bottom {
     position: fixed !important;
-    left: 10px !important;
-    right: 10px !important;
-    bottom: 10px !important;
-
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 12px !important;
     width: auto !important;
-    height: 70px !important;
-
-    display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important;
-    align-items: center !important;
-
-    padding: 5px !important;
-    box-sizing: border-box !important;
-
-    background: rgba(255,255,255,.97) !important;
-    backdrop-filter: blur(18px) !important;
-    -webkit-backdrop-filter: blur(18px) !important;
-
-    border: 1px solid rgba(20,40,80,.10) !important;
-    border-radius: 22px !important;
-
-    box-shadow:
-      0 8px 30px rgba(20,35,70,.18),
-      0 2px 8px rgba(20,35,70,.08) !important;
-
-    z-index: 9999 !important;
-
-    overflow: hidden !important;
-  }
-
-  nav.bottom button {
-    width: 100% !important;
-    height: 60px !important;
-
+    height: 76px !important;
     margin: 0 !important;
-    padding: 3px 1px !important;
-
+    padding: 6px !important;
     display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    gap: 2px !important;
-
-    background: transparent !important;
-    border: 0 !important;
-    border-radius: 16px !important;
-
-    font-size: 25px !important;
-    line-height: 1 !important;
-
-    color: #68738a !important;
-
-    cursor: pointer !important;
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  nav.bottom button small {
-    display: block !important;
-
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    line-height: 1.1 !important;
-
-    white-space: nowrap !important;
-  }
-
-  /* More button */
-  nav.bottom #mobileMore {
-    min-width: 0 !important;
-    font-size: 25px !important;
-  }
-
-  nav.bottom #mobileMore small {
-    font-size: 12px !important;
-  }
-
-  /* Tap effect */
-  nav.bottom button:active {
-    transform: scale(.93) !important;
-    background: rgba(47,101,230,.10) !important;
-  }
-
-  /* More popup */
-  .mobile-more-card {
-    width: calc(100vw - 30px) !important;
-    max-width: 420px !important;
-
-    border-radius: 24px !important;
-  }
-
-  /* Page space so content doesn't hide behind bottom bar */
-  body {
-    padding-bottom: 95px !important;
-  }
-}
-@media (max-width: 700px) {
-
-  nav.bottom button {
-    transition:
-      transform .16s ease,
-      background .16s ease,
-      color .16s ease,
-      box-shadow .16s ease !important;
-  }
-
-  /* Active page */
-  nav.bottom button.active {
-    color: #b5121b !important;
-    background: rgba(181, 18, 27, 0.10) !important;
-    box-shadow: inset 0 0 0 1px rgba(181, 18, 27, 0.08) !important;
-  }
-
-  nav.bottom button.active small {
-    color: #b5121b !important;
-    font-weight: 800 !important;
-  }
-
-  /* Tap feedback */
-  nav.bottom button:active {
-    transform: scale(.90) !important;
-    background: rgba(181, 18, 27, 0.16) !important;
-    color: #b5121b !important;
-  }
-
-  nav.bottom button:active small {
-    color: #b5121b !important;
-  }
-
-}
-@media (max-width: 700px) {
-
-  nav.bottom button.active {
-    color: #c8102e !important;
-    background: rgba(200, 16, 46, 0.12) !important;
-    border-radius: 16px !important;
-    transform: translateY(-3px) !important;
-  }
-
-  nav.bottom button.active small {
-    color: #c8102e !important;
-    font-weight: 900 !important;
-  }
-
-  nav.bottom button.active:first-letter {
-    filter: none;
-  }
-
-  nav.bottom button:active {
-    transform: scale(0.88) !important;
-    background: rgba(200, 16, 46, 0.20) !important;
-  }
-}
-/* =====================================================
-   PRABHA AUTO - MOBILE NAVIGATION FINAL
-   ===================================================== */
-
-@media (max-width: 700px) {
-
-  nav.bottom {
-    position: fixed !important;
-    left: 10px !important;
-    right: 10px !important;
-    bottom: 10px !important;
-
-    width: auto !important;
-    height: 72px !important;
-
-    display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important;
-
-    padding: 5px !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
     gap: 4px !important;
-
     box-sizing: border-box !important;
-
     background: rgba(255,255,255,.98) !important;
-
-    border: 1px solid rgba(20,40,80,.12) !important;
-    border-radius: 22px !important;
-
-    box-shadow:
-      0 8px 30px rgba(0,0,0,.15),
-      0 2px 8px rgba(0,0,0,.08) !important;
-
-    z-index: 99999 !important;
+    border: 1px solid #e1e5ec !important;
+    border-radius: 26px !important;
+    box-shadow: 0 10px 34px rgba(20,35,70,.18) !important;
+    overflow: hidden !important;
+    z-index: 999999 !important;
   }
 
   nav.bottom button {
-    width: 100% !important;
-    height: 60px !important;
-
+    flex: 1 1 0 !important;
+    width: 20% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 64px !important;
+    margin: 0 !important;
+    padding: 4px 2px !important;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background: transparent !important;
+    color: #68758c !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-
-    gap: 3px !important;
-
-    margin: 0 !important;
-    padding: 3px !important;
-
-    border: 0 !important;
-    border-radius: 16px !important;
-
-    background: transparent !important;
-
-    color: #697386 !important;
-
-    font-size: 23px !important;
-    font-weight: 700 !important;
-
-    transition:
-      background .18s ease,
-      color .18s ease,
-      transform .12s ease,
-      box-shadow .18s ease !important;
-
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  nav.bottom button .nav-icon {
-    font-size: 24px !important;
+    gap: 4px !important;
+    font-size: 27px !important;
     line-height: 1 !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition: background .16s ease, color .16s ease, transform .12s ease, box-shadow .16s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
   }
 
   nav.bottom button small {
     display: block !important;
-
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
     font-size: 11px !important;
     line-height: 1.1 !important;
-
-    font-weight: 700 !important;
-
+    font-weight: 850 !important;
     white-space: nowrap !important;
   }
 
-  /* ACTIVE BUTTON */
+  /* Active page = RED rounded box, not a red bar/line. */
   nav.bottom button.active {
-    background: rgba(200,16,46,.13) !important;
-    color: #c8102e !important;
-
-    box-shadow:
-      0 3px 10px rgba(200,16,46,.14) !important;
-
-    transform: translateY(-2px) !important;
+    background: #c8102e !important;
+    color: #fff !important;
+    box-shadow: 0 7px 18px rgba(200,16,46,.24) !important;
+    transform: translateY(-1px) !important;
   }
+  nav.bottom button.active small { color: #fff !important; }
 
-  nav.bottom button.active small {
-    color: #c8102e !important;
-    font-weight: 900 !important;
-  }
-
-  /* TAP EFFECT */
   nav.bottom button:active {
-    transform: scale(.90) !important;
-    background: rgba(200,16,46,.20) !important;
+    transform: scale(.94) !important;
   }
 
-  /* MORE POPUP */
-  .mobile-more {
+  /* More sheet must override the old display:none rule. */
+  #mobileMoreSheet {
     position: fixed !important;
     inset: 0 !important;
-
-    display: flex !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-
-    z-index: 100000 !important;
+    display: block !important;
+    z-index: 1000000 !important;
   }
+  #mobileMoreSheet.hidden { display: none !important; }
 
-  .mobile-more.hidden {
-    display: none !important;
-  }
-
-  .mobile-more-backdrop {
+  #mobileMoreSheet .mobile-more-backdrop {
     position: absolute !important;
     inset: 0 !important;
-
-    background: rgba(0,0,0,.42) !important;
-
+    background: rgba(7,17,38,.48) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
   }
 
-  .mobile-more-card {
-    position: relative !important;
-
-    width: calc(100% - 20px) !important;
-    max-width: 480px !important;
-
-    margin-bottom: 10px !important;
-    padding: 14px !important;
-
+  #mobileMoreSheet .mobile-more-card {
+    position: absolute !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 96px !important;
+    width: auto !important;
+    max-height: calc(100vh - 130px) !important;
+    overflow: auto !important;
     background: #fff !important;
-
-    border-radius: 26px !important;
-
-    box-shadow:
-      0 15px 50px rgba(0,0,0,.25) !important;
-
-    z-index: 2 !important;
-
+    border-radius: 24px !important;
+    padding: 12px !important;
+    box-shadow: 0 20px 60px rgba(7,17,38,.30) !important;
     box-sizing: border-box !important;
-
-    animation: mobileMoreUp .22s ease-out !important;
   }
 
-  @keyframes mobileMoreUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .mobile-more-head {
+  #mobileMoreSheet .mobile-more-head {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-
-    padding: 4px 4px 12px !important;
+    padding: 5px 6px 12px !important;
+    font-size: 19px !important;
   }
 
-  .mobile-more-head strong {
-    display: block !important;
-    font-size: 20px !important;
-  }
-
-  .mobile-more-head small {
-    display: block !important;
-    margin-top: 2px !important;
-
-    font-size: 11px !important;
-    color: #8a93a3 !important;
-  }
-
-  .mobile-more-head .x {
-    width: 42px !important;
-    height: 42px !important;
-
+  #mobileMoreSheet .mobile-more-head .x {
+    position: static !important;
+    width: 36px !important;
+    height: 36px !important;
     border: 0 !important;
     border-radius: 50% !important;
-
     background: #f1f3f6 !important;
-
-    font-size: 26px !important;
-    color: #333 !important;
+    color: #4f5a6b !important;
+    font-size: 24px !important;
   }
 
-  .mobile-more-card > button:not(.x) {
+  #mobileMoreSheet .mobile-more-card > button:not(.x) {
     width: 100% !important;
-    min-height: 62px !important;
-
-    display: flex !important;
-    align-items: center !important;
-
-    gap: 14px !important;
-
-    margin: 6px 0 !important;
-    padding: 10px 12px !important;
-
-    border: 0 !important;
-    border-radius: 17px !important;
-
-    background: #f7f8fa !important;
-
-    text-align: left !important;
-
-    color: #202532 !important;
-  }
-
-  .mobile-more-card > button:not(.x) > span {
-    width: 42px !important;
-    height: 42px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    border-radius: 13px !important;
-
+    min-height: 56px !important;
+    margin: 5px 0 !important;
+    padding: 10px 13px !important;
+    border: 1px solid #e6eaf0 !important;
+    border-radius: 14px !important;
     background: #fff !important;
-
-    font-size: 22px !important;
-  }
-
-  .mobile-more-card > button:not(.x) div {
-    flex: 1 !important;
-  }
-
-  .mobile-more-card > button:not(.x) strong {
-    display: block !important;
+    color: #202b3f !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: left !important;
     font-size: 15px !important;
+    font-weight: 800 !important;
+    box-sizing: border-box !important;
   }
-
-  .mobile-more-card > button:not(.x) small {
-    display: block !important;
-    margin-top: 2px !important;
-
-    font-size: 11px !important;
-    color: #8992a3 !important;
-  }
-
-  .mobile-more-card > button:not(.x):active {
-    transform: scale(.98) !important;
-    background: rgba(200,16,46,.10) !important;
-  }
-
-  body {
-    padding-bottom: 95px !important;
+  #mobileMoreSheet .mobile-more-card > button:not(.x):active {
+    background: #fff1f3 !important;
+    border-color: #f0a8b4 !important;
   }
 }
+

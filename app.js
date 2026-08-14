@@ -199,84 +199,16 @@ const low=()=>lowRows();
 const zero=()=>zeroRows();
 
 function nav(page){
-
-  // Page show/hide
-  document.querySelectorAll(".page").forEach(x => {
-    x.classList.toggle("active", x.id === page);
-  });
-
-  // Desktop + other navigation
-  document.querySelectorAll("[data-page]").forEach(x => {
-    x.classList.toggle("active", x.dataset.page === page);
-  });
-
-  // MOBILE BOTTOM NAV — direct visual active state
-  document.querySelectorAll("nav.bottom button[data-page]").forEach(btn => {
-
-    const isActive = btn.dataset.page === page;
-
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-current", isActive ? "page" : "false");
-
-    // Direct styling — CSS/cache issue won't affect this
-    if (isActive) {
-      btn.style.background = "rgba(200, 16, 46, 0.14)";
-      btn.style.color = "#c8102e";
-      btn.style.borderRadius = "16px";
-      btn.style.boxShadow = "0 4px 12px rgba(200,16,46,0.16)";
-      btn.style.transform = "translateY(-3px)";
-    } else {
-      btn.style.background = "";
-      btn.style.color = "";
-      btn.style.borderRadius = "";
-      btn.style.boxShadow = "";
-      btn.style.transform = "";
-    }
-  });
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
+ document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+ const moreBtn=document.getElementById("mobileMore");
+ const morePages=new Set(["orders","suppliers","reports","settings","accessories"]);
+ if(moreBtn) moreBtn.classList.toggle("active",morePages.has(page));
+ const sheet=document.getElementById("mobileMoreSheet");
+ if(sheet) sheet.classList.add("hidden");
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll("[data-page]").forEach(x=>x.onclick=()=>nav(x.dataset.page));
-// ===== MOBILE MORE MENU FIX =====
-(function initMobileMore(){
-
-  const moreBtn = document.getElementById("mobileMore");
-  const sheet = document.getElementById("mobileMoreSheet");
-  const closeBtn = document.getElementById("mobileMoreX");
-  const backdrop = document.getElementById("mobileMoreClose");
-
-  if (!moreBtn || !sheet) return;
-
-  const openMore = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    sheet.classList.remove("hidden");
-  };
-
-  const closeMore = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    sheet.classList.add("hidden");
-  };
-
-  moreBtn.addEventListener("click", openMore);
-  closeBtn?.addEventListener("click", closeMore);
-  backdrop?.addEventListener("click", closeMore);
-
-  sheet.querySelectorAll("[data-page]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      sheet.classList.add("hidden");
-      nav(btn.dataset.page);
-    });
-  });
-
-})();
-// ===== END MOBILE MORE MENU FIX =====
 document.addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(b)b.classList.add("tap-active");});
 document.addEventListener("pointerup",e=>{const b=e.target.closest("button");if(b)setTimeout(()=>b.classList.remove("tap-active"),180);});
 document.addEventListener("pointercancel",e=>{const b=e.target.closest("button");if(b)b.classList.remove("tap-active");});
@@ -845,48 +777,30 @@ $("stockFilter").onchange=stockView;
 $("addPart").onclick=addPart;
 $("editSelectedPart").onclick=()=>{const c=selectedPartCode();c?editPart(c):toast("Select a part first","error")};
 $("deleteSelectedPart").onclick=()=>{const c=selectedPartCode();c?deletePart(c):toast("Select a part first","error")};
-
 function initMobileMore(){
-  const sheet = $("mobileMoreSheet");
-  const moreBtn = $("mobileMore");
-  const closeBtn = $("mobileMoreClose");
-  const xBtn = $("mobileMoreX");
-
-  if(!sheet || !moreBtn) return;
-
-  const openMore = (e) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-
-    sheet.classList.remove("hidden");
-    moreBtn.classList.add("active");
-  };
-
-  const closeMore = (e) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-
-    sheet.classList.add("hidden");
-    moreBtn.classList.remove("active");
-  };
-
-  moreBtn.onclick = openMore;
-
-  closeBtn && (closeBtn.onclick = closeMore);
-  xBtn && (xBtn.onclick = closeMore);
-
-  sheet.querySelectorAll(".mobile-more-card [data-page]").forEach(btn => {
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const page = btn.dataset.page;
-
-      closeMore();
-
-      if(page) nav(page);
-    };
-  });
+ const sheet=$("mobileMoreSheet");
+ const more=$("mobileMore");
+ const close=()=>{
+   sheet?.classList.add("hidden");
+   more?.classList.remove("active");
+ };
+ const open=()=>{
+   sheet?.classList.remove("hidden");
+   more?.classList.add("active");
+ };
+ if(!sheet||!more)return;
+ more.onclick=(e)=>{e.preventDefault();e.stopPropagation();open();};
+ $("mobileMoreClose")?.addEventListener("click",close);
+ $("mobileMoreX")?.addEventListener("click",close);
+ sheet.querySelectorAll("[data-page]").forEach(b=>{
+   b.onclick=(e)=>{
+     e.preventDefault();
+     e.stopPropagation();
+     const page=b.dataset.page;
+     close();
+     nav(page);
+   };
+ });
 }
 
 $("addAccessory")?.addEventListener("click",()=>accessoryModal());
