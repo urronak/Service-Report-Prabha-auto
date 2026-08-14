@@ -808,13 +808,48 @@ $("stockFilter").onchange=stockView;
 $("addPart").onclick=addPart;
 $("editSelectedPart").onclick=()=>{const c=selectedPartCode();c?editPart(c):toast("Select a part first","error")};
 $("deleteSelectedPart").onclick=()=>{const c=selectedPartCode();c?deletePart(c):toast("Select a part first","error")};
+
 function initMobileMore(){
- const sheet=$("mobileMoreSheet");
- const close=()=>sheet?.classList.add("hidden");
- $("mobileMore")?.addEventListener("click",()=>sheet?.classList.toggle("hidden"));
- $("mobileMoreClose")?.addEventListener("click",close);
- $("mobileMoreX")?.addEventListener("click",close);
- sheet?.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>{close();nav(b.dataset.page)}));
+  const sheet = $("mobileMoreSheet");
+  const moreBtn = $("mobileMore");
+  const closeBtn = $("mobileMoreClose");
+  const xBtn = $("mobileMoreX");
+
+  if(!sheet || !moreBtn) return;
+
+  const openMore = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    sheet.classList.remove("hidden");
+    moreBtn.classList.add("active");
+  };
+
+  const closeMore = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    sheet.classList.add("hidden");
+    moreBtn.classList.remove("active");
+  };
+
+  moreBtn.onclick = openMore;
+
+  closeBtn && (closeBtn.onclick = closeMore);
+  xBtn && (xBtn.onclick = closeMore);
+
+  sheet.querySelectorAll(".mobile-more-card [data-page]").forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const page = btn.dataset.page;
+
+      closeMore();
+
+      if(page) nav(page);
+    };
+  });
 }
 
 $("addAccessory")?.addEventListener("click",()=>accessoryModal());

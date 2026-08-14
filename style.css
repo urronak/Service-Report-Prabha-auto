@@ -189,3 +189,325 @@ button:active,.tap-active{transform:scale(.97)!important;opacity:.92}
     padding-bottom: 95px !important;
   }
 }
+@media (max-width: 700px) {
+
+  nav.bottom button {
+    transition:
+      transform .16s ease,
+      background .16s ease,
+      color .16s ease,
+      box-shadow .16s ease !important;
+  }
+
+  /* Active page */
+  nav.bottom button.active {
+    color: #b5121b !important;
+    background: rgba(181, 18, 27, 0.10) !important;
+    box-shadow: inset 0 0 0 1px rgba(181, 18, 27, 0.08) !important;
+  }
+
+  nav.bottom button.active small {
+    color: #b5121b !important;
+    font-weight: 800 !important;
+  }
+
+  /* Tap feedback */
+  nav.bottom button:active {
+    transform: scale(.90) !important;
+    background: rgba(181, 18, 27, 0.16) !important;
+    color: #b5121b !important;
+  }
+
+  nav.bottom button:active small {
+    color: #b5121b !important;
+  }
+
+}
+@media (max-width: 700px) {
+
+  nav.bottom button.active {
+    color: #c8102e !important;
+    background: rgba(200, 16, 46, 0.12) !important;
+    border-radius: 16px !important;
+    transform: translateY(-3px) !important;
+  }
+
+  nav.bottom button.active small {
+    color: #c8102e !important;
+    font-weight: 900 !important;
+  }
+
+  nav.bottom button.active:first-letter {
+    filter: none;
+  }
+
+  nav.bottom button:active {
+    transform: scale(0.88) !important;
+    background: rgba(200, 16, 46, 0.20) !important;
+  }
+}
+/* =====================================================
+   PRABHA AUTO - MOBILE NAVIGATION FINAL
+   ===================================================== */
+
+@media (max-width: 700px) {
+
+  nav.bottom {
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+
+    width: auto !important;
+    height: 72px !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+
+    padding: 5px !important;
+    gap: 4px !important;
+
+    box-sizing: border-box !important;
+
+    background: rgba(255,255,255,.98) !important;
+
+    border: 1px solid rgba(20,40,80,.12) !important;
+    border-radius: 22px !important;
+
+    box-shadow:
+      0 8px 30px rgba(0,0,0,.15),
+      0 2px 8px rgba(0,0,0,.08) !important;
+
+    z-index: 99999 !important;
+  }
+
+  nav.bottom button {
+    width: 100% !important;
+    height: 60px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 3px !important;
+
+    margin: 0 !important;
+    padding: 3px !important;
+
+    border: 0 !important;
+    border-radius: 16px !important;
+
+    background: transparent !important;
+
+    color: #697386 !important;
+
+    font-size: 23px !important;
+    font-weight: 700 !important;
+
+    transition:
+      background .18s ease,
+      color .18s ease,
+      transform .12s ease,
+      box-shadow .18s ease !important;
+
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  nav.bottom button .nav-icon {
+    font-size: 24px !important;
+    line-height: 1 !important;
+  }
+
+  nav.bottom button small {
+    display: block !important;
+
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+
+    font-weight: 700 !important;
+
+    white-space: nowrap !important;
+  }
+
+  /* ACTIVE BUTTON */
+  nav.bottom button.active {
+    background: rgba(200,16,46,.13) !important;
+    color: #c8102e !important;
+
+    box-shadow:
+      0 3px 10px rgba(200,16,46,.14) !important;
+
+    transform: translateY(-2px) !important;
+  }
+
+  nav.bottom button.active small {
+    color: #c8102e !important;
+    font-weight: 900 !important;
+  }
+
+  /* TAP EFFECT */
+  nav.bottom button:active {
+    transform: scale(.90) !important;
+    background: rgba(200,16,46,.20) !important;
+  }
+
+  /* MORE POPUP */
+  .mobile-more {
+    position: fixed !important;
+    inset: 0 !important;
+
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+
+    z-index: 100000 !important;
+  }
+
+  .mobile-more.hidden {
+    display: none !important;
+  }
+
+  .mobile-more-backdrop {
+    position: absolute !important;
+    inset: 0 !important;
+
+    background: rgba(0,0,0,.42) !important;
+
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+
+  .mobile-more-card {
+    position: relative !important;
+
+    width: calc(100% - 20px) !important;
+    max-width: 480px !important;
+
+    margin-bottom: 10px !important;
+    padding: 14px !important;
+
+    background: #fff !important;
+
+    border-radius: 26px !important;
+
+    box-shadow:
+      0 15px 50px rgba(0,0,0,.25) !important;
+
+    z-index: 2 !important;
+
+    box-sizing: border-box !important;
+
+    animation: mobileMoreUp .22s ease-out !important;
+  }
+
+  @keyframes mobileMoreUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .mobile-more-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    padding: 4px 4px 12px !important;
+  }
+
+  .mobile-more-head strong {
+    display: block !important;
+    font-size: 20px !important;
+  }
+
+  .mobile-more-head small {
+    display: block !important;
+    margin-top: 2px !important;
+
+    font-size: 11px !important;
+    color: #8a93a3 !important;
+  }
+
+  .mobile-more-head .x {
+    width: 42px !important;
+    height: 42px !important;
+
+    border: 0 !important;
+    border-radius: 50% !important;
+
+    background: #f1f3f6 !important;
+
+    font-size: 26px !important;
+    color: #333 !important;
+  }
+
+  .mobile-more-card > button:not(.x) {
+    width: 100% !important;
+    min-height: 62px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 14px !important;
+
+    margin: 6px 0 !important;
+    padding: 10px 12px !important;
+
+    border: 0 !important;
+    border-radius: 17px !important;
+
+    background: #f7f8fa !important;
+
+    text-align: left !important;
+
+    color: #202532 !important;
+  }
+
+  .mobile-more-card > button:not(.x) > span {
+    width: 42px !important;
+    height: 42px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 13px !important;
+
+    background: #fff !important;
+
+    font-size: 22px !important;
+  }
+
+  .mobile-more-card > button:not(.x) div {
+    flex: 1 !important;
+  }
+
+  .mobile-more-card > button:not(.x) strong {
+    display: block !important;
+    font-size: 15px !important;
+  }
+
+  .mobile-more-card > button:not(.x) small {
+    display: block !important;
+    margin-top: 2px !important;
+
+    font-size: 11px !important;
+    color: #8992a3 !important;
+  }
+
+  .mobile-more-card > button:not(.x):active {
+    transform: scale(.98) !important;
+    background: rgba(200,16,46,.10) !important;
+  }
+
+  body {
+    padding-bottom: 95px !important;
+  }
+}
